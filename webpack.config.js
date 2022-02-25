@@ -2,7 +2,7 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
 const deps = require("./package.json").dependencies;
-module.exports = {
+module.exports = (_, argv) => ({
   output: {
     publicPath: "http://localhost:3003/",
   },
@@ -44,7 +44,10 @@ module.exports = {
       name: "addtocart",
       filename: "remoteEntry.js",
       remotes: {
-        cart: "cart@http://localhost:3002/remoteEntry.js",
+        cart:
+          argv.mode === "development"
+            ? "cart@http://localhost:3002/remoteEntry.js"
+            : "cart@https://module-federation-cart.vercel.app/remoteEntry.js",
       },
       exposes: {
         "./AddToCart": "./src/AddToCart.jsx",
@@ -62,4 +65,4 @@ module.exports = {
       template: "./src/index.html",
     }),
   ],
-};
+});
